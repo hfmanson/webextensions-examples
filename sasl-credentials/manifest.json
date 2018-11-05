@@ -1,0 +1,34 @@
+{
+  "description": "Performs sasl basic authentication by supplying stored credentials.",
+  "manifest_version": 2,
+  "name": "sasl-credentials",
+  "version": "2.0",
+  "author": "Mozilla",
+  "homepage_url": "https://github.com/mdn/webextensions-examples/tree/master/stored-credentials",
+  "icons": {
+    "48": "icons/lock.svg"
+  },
+
+  "applications": {
+    "gecko": {
+      "id": "ping_pong@example.org",
+      "strict_min_version": "54.0a1"
+    }
+  },
+
+  "background": {
+    "scripts": ["storage.js", "auth.js"]
+  },
+
+  "options_ui": {
+    "page": "options/options.html"
+  },
+
+  "permissions": [
+	"nativeMessaging",
+    "webRequest",
+    "webRequestBlocking",
+    "storage",
+    "<all_urls>"
+  ]
+}
