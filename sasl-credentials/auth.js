@@ -25,7 +25,7 @@ const
 	, RE_CREDENTIALS = RE_AUTH_SCHEME + "(?:[ ]+(" + RE_AUTH_PARAM + "(?:" +
         RE_OWS + "," + RE_OWS + RE_AUTH_PARAM + ")+)?)"
 	, parseSasl = (input) => {
-		console.log(input);
+		//console.log(input);
 		//console.log(RE_CREDENTIALS);
 		const regexp1 = new RegExp(RE_CREDENTIALS);
 		if (regexp1.test(input)) {
@@ -34,14 +34,14 @@ const
 			let result;
 			const map = { };
 			while (result = regexp2.exec(input)) {
-				console.log(result);
+				//console.log(result);
 				for (let i = 1; i < result.length; i += 2) {
 					if (result[i]) {
 						map[result[i]] = result[i + 1];
 					}
 				}
 			}
-			console.log(map);
+			//console.log(map);
 			return map;
 		} else {
 			console.log("No match");
@@ -60,7 +60,6 @@ const
 			const
 				portListener = (response) => {
 					console.log("s2s: " + response.s2s);
-					console.log("s2c: " + response.s2c);
 					lastResponse = response;
 					resolve(obj);
 					port.onMessage.removeListener(portListener);
@@ -77,32 +76,42 @@ const
 			responseHeaders[responseHeaders[i].name] = responseHeaders[i];
 		}
 		console.log(requestDetails);
-		if (responseHeaders["WWW-Authenticate"]) {
-			// If we have seen this request before,
-			// then assume our credentials were bad,
-			// and give up.
-			const authenticate = responseHeaders["WWW-Authenticate"].value;
-			const attrs = parseSasl(authenticate);
-			console.log(attrs);
-			if (pendingRequests.indexOf(requestDetails.requestId) != -1) {
-/*			
-				console.log("bad credentials for: " + requestDetails.requestId);
-				return {
-					cancel: true
-				};
-*/			
-				console.log("phase 2: " + requestDetails.requestId);
-				return asyncRedirect(attrs, {
-					redirectUrl: requestDetails.url
-				});
+		if (requestDetails.statusCode = 401) {
+			if (responseHeaders["WWW-Authenticate"]) {
+				// If we have seen this request before,
+				// then assume our credentials were bad,
+				// and give up.
+				const authenticate = responseHeaders["WWW-Authenticate"].value;
+				const attrs = parseSasl(authenticate);
+				console.log(attrs);
+				if (attrs.s2c) {
+					console.log("s2c: " + atob(attrs.s2c));
+				}
+				
+				if (pendingRequests.indexOf(requestDetails.requestId) != -1) {
+	/*			
+					console.log("bad credentials for: " + requestDetails.requestId);
+					return {
+						cancel: true
+					};
+	*/			
+					console.log("phase 2: " + requestDetails.requestId);
+					return asyncRedirect(attrs, {
+						redirectUrl: requestDetails.url
+					});
+				} else {
+					pendingRequests.push(requestDetails.requestId);
+					console.log("phase 1: " + requestDetails.requestId);
+					return asyncRedirect(attrs, {
+						redirectUrl: requestDetails.url
+					});
+				}
+				
 			} else {
-				pendingRequests.push(requestDetails.requestId);
-				console.log("phase 1: " + requestDetails.requestId);
-				return asyncRedirect(attrs, {
-					redirectUrl: requestDetails.url
-				});
+				console.log("Reset sasl-client");
+				return {
+				};
 			}
-			
 		} else {
 			return {
 			};
@@ -126,11 +135,12 @@ const
 				sendField(" mech", "DIGEST-MD5", true) +
 				sendField(",realm", lastResponse.realm, true)  +
 				sendField(",s2s", lastResponse.s2s, false) +
-				sendField(",s2c", lastResponse.s2c, false) +
-				sendField(",c2c", lastResponse.c2c, false) +
 				sendField(",c2s", lastResponse.c2s, false)
 				;
 			console.log(authorization);
+			if (lastResponse.c2s) {
+				console.log("c2s: " + atob(lastResponse.c2s));
+			}
 			requestDetails.requestHeaders.push(
 				{
 					name: "Authorization",
