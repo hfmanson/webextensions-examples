@@ -248,18 +248,5 @@ public class PingPong extends Application {
         } catch (IOException e2) {
             //exception handling left as an exercise for the reader
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }
