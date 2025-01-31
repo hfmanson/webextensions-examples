@@ -1,0 +1,28 @@
+{
+  "description": "XSLT transformations",
+  "manifest_version": 2,
+  "name": "xslt-transformation-test",
+  "version": "1.2",
+  "homepage_url": "https://github.com/hfmanson",
+  "icons": {
+    "48": "pen.svg"
+  },
+
+  "permissions": [
+    "nativeMessaging",
+    "webRequest",
+	"webRequestBlocking",
+	"http://mansoft.nl/xslt-browser-plugin/*"
+  ],
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "applications": {
+    "gecko": {
+      "id": "xslt@mansoft.nl",
+      "strict_min_version": "57.0a1"
+    }
+  }
+}
